@@ -141,8 +141,12 @@ function get_location_info() {
 
     return $location_info;
 }
-$log_file = 'logs/log.txt';
-if (!file_exists($log_file)) {
-    $file = fopen($log_file, 'w');
-    fclose($file);
+
+add_action( 'init', 'local_privacy_log_user_location' );
+function local_privacy_log_user_location() {
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $user_location = local_privacy_get_user_location( $ip_address );
+    $log_message = "IP address: " . $ip_address . " | Location: " . $user_location . "\n";
+    $log_file_path = plugin_dir_path( __FILE__ ) . 'logs/log.txt';
+    file_put_contents( $log_file_path, $log_message, FILE_APPEND );
 }
