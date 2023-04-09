@@ -118,3 +118,31 @@ function lp_settings_init()
 {
     register_setting('lp_settings', 'lp_settings');
 }
+function get_location_info() {
+    $location_info = array();
+
+    // Get user's IP address
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $location_info['ip'] = $ip;
+
+    // Use an external service to get user's location information
+    $url = 'http://ip-api.com/json/' . $ip;
+    $response = wp_remote_get( $url );
+    if ( !is_wp_error( $response ) && $response['response']['code'] == 200 ) {
+        $location_data = json_decode( $response['body'], true );
+        if ( $location_data['status'] == 'success' ) {
+            $location_info['city'] = $location_data['city'];
+            $location_info['region'] = $location_data['regionName'];
+            $location_info['country'] = $location_data['country'];
+            $location_info['lat'] = $location_data['lat'];
+            $location_info['lon'] = $location_data['lon'];
+        }
+    }
+
+    return $location_info;
+}
+$log_file = 'logs/log.txt';
+if (!file_exists($log_file)) {
+    $file = fopen($log_file, 'w');
+    fclose($file);
+}
